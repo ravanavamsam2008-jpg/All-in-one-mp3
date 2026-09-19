@@ -13,23 +13,12 @@ if st.button("Download MP3"):
     if not url:
         st.warning("Please enter a valid URL!")
     else:
-        with st.spinner("Downloading audio, please wait..."):
-            # Format-a universal audio-ku update panrom
+        with st.spinner("Downloading, please wait..."):
             ydl_opts = {
-                'format': 'bestaudio',
-                'outtmpl': 'downloaded_audio.mp3',
+                'format': 'best',
+                'outtmpl': 'downloaded_audio.mp4',
                 'restrictfilenames': True,
                 'noplaylist': True,
-                'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192',
-                }],
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['android', 'web'],
-                    }
-                },
                 'http_headers': {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                 }
@@ -38,20 +27,19 @@ if st.button("Download MP3"):
             try:
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([url])
-                    filename = 'downloaded_audio.mp3'
+                    filename = 'downloaded_audio.mp4'
 
                     if os.path.exists(filename):
                         with open(filename, "rb") as f:
                             st.success("Download Ready!")
                             st.download_button(
-                                label="Click Here to Save MP3",
+                                label="Click Here to Save File",
                                 data=f,
-                                file_name="audio.mp3",
-                                mime="audio/mp3"
+                                file_name="media.mp4",
+                                mime="video/mp4"
                             )
                     else:
                         st.error("Error: File could not be processed.")
 
             except Exception as e:
                 st.error(f"Error: {str(e)}")
-                
