@@ -13,21 +13,25 @@ if st.button("Download MP3"):
     if not url:
         st.warning("Please enter a valid URL!")
     else:
-        with st.spinner("Downloading, please wait..."):
+        with st.spinner("Downloading, please wait...ing..."):
+            # YouTube cookies/format mismatch avoid panra mukkhiya opts
             ydl_opts = {
-                'format': 'best',
-                'outtmpl': 'downloaded_audio.mp4',
-                'restrictfilenames': True,
+                'format': 'best[ext=mp4]/best',
+                'outtmpl': 'downloaded_media.mp4',
                 'noplaylist': True,
-                'http_headers': {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                'ignoreerrors': True,
+                'no_warnings': True,
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android', 'ios', 'web']
+                    }
                 }
             }
 
             try:
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([url])
-                    filename = 'downloaded_audio.mp4'
+                    filename = 'downloaded_media.mp4'
 
                     if os.path.exists(filename):
                         with open(filename, "rb") as f:
@@ -35,11 +39,11 @@ if st.button("Download MP3"):
                             st.download_button(
                                 label="Click Here to Save File",
                                 data=f,
-                                file_name="media.mp4",
+                                file_name="downloaded_file.mp4",
                                 mime="video/mp4"
                             )
                     else:
-                        st.error("Error: File could not be processed.")
+                        st.error("Error: File could not be processed. Try a different link.")
 
             except Exception as e:
-                st.error(f"Error: {str(e)}")
+                st.error(f"Error occurred: {str(e)}")
