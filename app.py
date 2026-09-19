@@ -7,7 +7,6 @@ st.set_page_config(page_title="All in One MP3 Generator", page_icon="🎵")
 st.markdown("<h1 style='text-align: center;'>🎵 ALL IN ONE MP3 GENERATOR 🎵</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>By Sada Uesan</p>", unsafe_allow_html=True)
 
-# URL input box
 url = st.text_input("Enter your YouTube / Insta URL...")
 
 if st.button("Download MP3"):
@@ -15,11 +14,17 @@ if st.button("Download MP3"):
         st.warning("Please enter a valid URL!")
     else:
         with st.spinner("Downloading audio, please wait..."):
+            # Format-a universal audio-ku update panrom
             ydl_opts = {
-                'format': 'bestaudio/audio',
+                'format': 'bestaudio',
                 'outtmpl': 'downloaded_audio.mp3',
                 'restrictfilenames': True,
                 'noplaylist': True,
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
                 'extractor_args': {
                     'youtube': {
                         'player_client': ['android', 'web'],
