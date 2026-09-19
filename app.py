@@ -14,12 +14,15 @@ def download_audio():
     if not url:
         return render_template('index.html', message="Please enter a valid URL!")
 
-    # Android storage-ku safe-aana filename-ah convert panra options
+    # Android storage & Bot block avoid panra options
     ydl_opts = {
         'format': 'bestaudio/audio',
         'outtmpl': '%(id)s.mp3',
-        'restrictfilenames': True,  # Special characters and spaces-ah remove pannidum
+        'restrictfilenames': True,
         'noplaylist': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
     }
 
     try:
