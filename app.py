@@ -14,12 +14,17 @@ def download_audio():
     if not url:
         return render_template('index.html', message="Please enter a valid URL!")
 
-    # Android storage & Bot block avoid panra options
+    # Render server-ku YouTube block-a bypass panra options
     ydl_opts = {
         'format': 'bestaudio/audio',
         'outtmpl': '%(id)s.mp3',
         'restrictfilenames': True,
         'noplaylist': True,
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'web'],
+            }
+        },
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         }
@@ -27,14 +32,11 @@ def download_audio():
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # Video info-va extract panrom
             info = ydl.extract_info(url, download=True)
             filename = info.get('id') + '.mp3'
             
-            # File-a user-oda browser-ku send panrom
             response = send_file(filename, as_attachment=True)
             
-            # File send aanathum server folder-la irundhu delete panra function
             @response.call_on_close
             def cleanup():
                 try:
@@ -51,3 +53,4 @@ def download_audio():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+    
