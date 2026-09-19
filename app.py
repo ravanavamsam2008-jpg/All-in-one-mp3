@@ -1,56 +1,52 @@
-from flask import Flask, render_template, request, send_file
+import streamlit as st
 import yt_dlp
 import os
 
-app = Flask(__name__)
+st.set_page_config(page_title="All in One MP3 Generator", page_icon="🎵")
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+st.markdown("<h1 style='text-align: center;'>🎵 ALL IN ONE MP3 GENERATOR 🎵</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>By Sada Uesan</p>", unsafe_allow_html=True)
 
-@app.route('/download', methods=['POST'])
-def download_audio():
-    url = request.form.get('url')
+# URL input box
+url = st.text_input("Enter your YouTube / Insta URL...")
+
+if st.button("Download MP3"):
     if not url:
-        return render_template('index.html', message="Please enter a valid URL!")
-
-    # Render server-ku YouTube block-a bypass panra options
-    ydl_opts = {
-        'format': 'bestaudio/audio',
-        'outtmpl': '%(id)s.mp3',
-        'restrictfilenames': True,
-        'noplaylist': True,
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['android', 'web'],
+        st.warning("Please enter a valid URL!")
+    else:
+        with st.spinner("Downloading audio, please wait..."):
+            ydl_opts = {
+                'format': 'bestaudio/audio',
+                'outtmpl': 'downloaded_audio.mp3',
+                'restrictfilenames': True,
+                'noplaylist': True,
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android', 'web'],
+                    }
+                },
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
             }
-        },
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-    }
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            filename = info.get('id') + '.mp3'
-            
-            response = send_file(filename, as_attachment=True)
-            
-            @response.call_on_close
-            def cleanup():
-                try:
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    ydl.download([url])
+                    filename = 'downloaded_audio.mp3'
+
                     if os.path.exists(filename):
-                        os.remove(filename)
-                except Exception as e:
-                    print(f"Cleanup error: {e}")
+                        with open(filename, "rb") as f:
+                            st.success("Download Ready!")
+                            st.download_button(
+                                label="Click Here to Save MP3",
+                                data=f,
+                                file_name="audio.mp3",
+                                mime="audio/mp3"
+                            )
+                    else:
+                        st.error("Error: File could not be processed.")
 
-            return response
-
-    except Exception as e:
-        return render_template('index.html', message=f"Error: {str(e)}")
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
-    
+            except Exception as e:
+                st.error(f"Error: {str(e)}")
+                
